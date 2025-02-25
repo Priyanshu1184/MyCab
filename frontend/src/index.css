@@ -1,3 +1,153 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Panel styles */
+.panel {
+    transition: transform 0.3s ease-in-out;
+}
+
+.panel-hidden {
+    transform: translateY(100%);
+}
+
+.panel-visible {
+    transform: translateY(0);
+}
+
+/* Button styles */
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.button-primary:hover {
+    background-color: #0056b3;
+}
+
+.button-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.button-secondary:hover {
+    background-color: #5a6268;
+}
+
+.button-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.button-danger:hover {
+    background-color: #c82333;
+}
+
+/* Icon styles */
+.icon {
+    margin-right: 10px;
+}
+
+
+.captain-details {
+    padding: 16px;
+}
+
+.captain-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.captain-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.captain-img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-cover: cover;
+}
+
+.captain-name {
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.captain-earnings {
+    text-align: right;
+}
+
+.earnings-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.earnings-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.captain-stats {
+    display: flex;
+    justify-content: space-around;
+    background-color: #f3f4f6;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: #6b7280;
+}
+
+.stat-value {
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+@media (max-width: 600px) {
+    .captain-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .captain-earnings {
+        text-align: left;
+        margin-top: 8px;
+    }
+}

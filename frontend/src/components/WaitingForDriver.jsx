@@ -1,84 +1,90 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import 'remixicon/fonts/remixicon.css';
+import './Waiting.css';
 
 const WaitingForDriver = (props) => {
     const navigate = useNavigate();
     const [panelOpen, setPanelOpen] = useState(false);
     const panelRef = useRef(null);
 
+    const handleCancelRide = () => {
+        // Navigate to home and refresh the page
+        window.location.href = '/home';
+    };
+
     return (
-        <div className="relative">
-            {/* 🔹 Driver & Ride Details */}
-            <div className='flex items-center justify-between p-4'>
-                <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="Car" />
-                <div className='text-right'>
-                    <h2 className='text-lg font-medium capitalize'>{props.ride?.captain.fullname.firstname}</h2>
-                    <h4 className='text-xl font-semibold -mt-1 -mb-1'>{props.ride?.captain.vehicle.plate}</h4>
-                    <p className='text-sm text-gray-600'>Maruti Suzuki Alto</p>
-                    <h1 className='text-lg font-semibold'> {props.ride?.otp} </h1>
-                </div>
-            </div>
+        <div className="waiting-container flex">
+            <div className="waiting-for-driver p-4 w-1/3 mt-8">
+                <div className="flex flex-col items-center justify-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400 mb-4"></div>
+                    <h2 className="text-xl font-semibold mb-2">Waiting for your driver</h2>
+                    <p className="text-gray-600 text-center">Please wait while your driver arrives</p>
+                    
+                    {/* Driver Details */}
+                    {props.ride && props.ride.captain && (
+                        <div className="w-full mt-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <img className='h-16 w-16 rounded-full object-cover' src={props.ride.captain.profileImage || "https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg"} alt="Captain" />
+                                <div>
+                                    <h4 className="font-medium">{props.ride.captain.fullname.firstname} {props.ride.captain.fullname.lastname}</h4>
+                                    <p className="text-sm text-gray-600">Car: {props.ride.captain.vehicleModel} : {props.ride?.captain?.vehicle?.plate}</p>
+                                    <p className="text-sm text-gray-600">OTP: {props.ride.otp}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-            {/* 🔹 Trip Details */}
-            <div className='flex gap-2 justify-between flex-col items-center'>
-                <div className='w-full mt-5'>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="ri-map-pin-user-fill"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.ride?.pickup}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3 border-b-2'>
-                        <i className="text-lg ri-map-pin-2-fill"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{props.ride?.destination}</p>
-                        </div>
-                    </div>
-                    <div className='flex items-center gap-5 p-3'>
-                        <i className="ri-currency-line"></i>
-                        <div>
-                            <h3 className='text-lg font-medium'>₹{props.ride?.fare} </h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    {/* Ride Details */}
+                    {props.ride && (
+                        <div className="w-full mt-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <i className="ri-map-pin-user-fill text-gray-600"></i>
+                                <div>
+                                    <h4 className="font-medium">Pickup Location</h4>
+                                    <p className="text-sm text-gray-600">{props.ride.pickup}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                                <i className="ri-map-pin-2-fill text-gray-600"></i>
+                                <div>
+                                    <h4 className="font-medium">Destination</h4>
+                                    <p className="text-sm text-gray-600">{props.ride.destination}</p>
+                                </div>
+                            </div>
 
-            {/* 🔹 Bottom Panel (Similar to Previous One) */}
-            <div 
-                className={`fixed bottom-0 w-full bg-white z-10 transition-transform duration-300 ease-in-out 
-                ${panelOpen ? 'translate-y-0 py-4' : 'translate-y-[85%] py-2'}`}  
-                ref={panelRef}
-            >
-                {/* 🔹 Toggle Button - Always Visible */}
-                <button 
-                    className={`absolute left-1/2 -translate-x-1/2 w-10 h-10 bg-gray-300 rounded-full shadow-md flex items-center justify-center text-xl
-                    transition-all duration-300 ease-in-out ${panelOpen ? '-top-5' : '-top-10'}`} 
-                    onClick={() => setPanelOpen(!panelOpen)}
+                            <div className="flex items-center gap-3">
+                                <i className="ri-taxi-fill text-gray-600"></i>
+                                <div>
+                                    <h4 className="font-medium">Vehicle Type</h4>
+                                    <p className="text-sm text-gray-600">{props.ride.vehicleType || 'Standard'}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <i className="ri-money-dollar-circle-fill text-gray-600"></i>
+                                <div>
+                                    <h4 className="font-medium">Estimated Fare</h4>
+                                    <p className="text-sm text-gray-600">₹{props.ride.fare}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Cancel Button */}
+                <button
+                    onClick={handleCancelRide}
+                    className="w-full mt-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                 >
-                    {panelOpen ? '↓' : '↑'}
+                    Cancel Ride
                 </button>
+            </div>
 
-                {/* 🔹 Panel Content */}
-                <div className='relative px-4 pb-4'>
-                    <h4 className='text-2xl font-semibold mt-6 text-center'>Ride Summary</h4>
-
-                    <div className="mt-4 space-y-2">
-                        <p className="text-lg font-medium">Pickup: <span className="text-gray-600">{props.ride?.pickup}</span></p>
-                        <p className="text-lg font-medium">Destination: <span className="text-gray-600">{props.ride?.destination}</span></p>
-                        <p className="text-lg font-medium">Fare: <span className="text-gray-600">₹{props.ride?.fare}</span></p>
-                    </div>
-
-                    {/* 🔹 Cancel Button */}
-                    <button 
-                        onClick={() => navigate('/cancel')} 
-                        className='bg-red-500 text-white px-4 py-2 rounded-lg mt-4 w-full'
-                    >
-                        Cancel Ride
-                    </button>
-                </div>
+            {/* Map Section */}
+            <div className="map-container w-2/3">
+                {/* Add your map component here */}
             </div>
         </div>
     );

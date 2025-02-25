@@ -12,7 +12,7 @@ const CaptainTracking = ({ ride, setTrackingPanel, setConfirmRidePopupPanel }) =
 
     useEffect(() => {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
+            const watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     const newPos = { lat: latitude, lng: longitude };
@@ -21,6 +21,8 @@ const CaptainTracking = ({ ride, setTrackingPanel, setConfirmRidePopupPanel }) =
                 (error) => console.error("Error getting location:", error),
                 { enableHighAccuracy: true }
             );
+
+            return () => navigator.geolocation.clearWatch(watchId);
         }
     }, []);
 
@@ -60,6 +62,15 @@ const CaptainTracking = ({ ride, setTrackingPanel, setConfirmRidePopupPanel }) =
                 {currentPosition && <Marker position={currentPosition} />}
                 {directions && <DirectionsRenderer directions={directions} />}
             </GoogleMap>
+            <button
+                onClick={() => {
+                    setTrackingPanel(false);
+                    setConfirmRidePopupPanel(true);
+                }}
+                className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white p-3 rounded-lg"
+            >
+                Confirm Arrival
+            </button>
         </LoadScriptNext>
     );
 };
