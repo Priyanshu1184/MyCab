@@ -8,8 +8,48 @@ const FinishRide = (props) => {
     const [distance, setDistance] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [paymentStatus, setPaymentStatus] = useState(''); // Track payment status
+    const [rideCompleted, setRideCompleted] = useState(false); // Track ride completion
     const navigate = useNavigate();
 
+    // Fetch ride details periodically
+    useEffect(() => {
+        const fetchRideDetails = async () => {
+            try {
+                const response = await axios.get(
+                    `${import.meta.env.VITE_BASE_URL}/rides/details/${props.ride._id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    }
+                );
+                const ride = response.data.ride;
+                console.log('Fetched Ride Details:', ride); // Debug log
+                setPaymentStatus(ride.paymentStatus); // Update payment status
+            } catch (error) {
+                console.error('Error fetching ride details:', error);
+                setError('Unable to fetch ride details');
+            }
+        };
+    
+        if (props.ride?._id) {
+            fetchRideDetails();
+        }
+    
+        // Poll every 5 seconds
+        const interval = setInterval(() => {
+            fetchRideDetails();
+        }, 5000);
+    
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, [props.ride]);
+
+    useEffect(() => {
+        console.log('Payment Status Updated:', paymentStatus); // Log payment status
+    }, [paymentStatus]);
+
+    // Calculate distance between pickup and destination
     useEffect(() => {
         const geocodeAddress = async (address) => {
             try {
@@ -19,7 +59,7 @@ const FinishRide = (props) => {
                         key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
                     }
                 });
-                
+
                 if (response.data.results.length > 0) {
                     const location = response.data.results[0].geometry.location;
                     return {
@@ -58,6 +98,7 @@ const FinishRide = (props) => {
         calculateDistance();
     }, [props.ride]);
 
+    // End ride logic
     const endRide = async () => {
         try {
             setLoading(true);
@@ -81,10 +122,8 @@ const FinishRide = (props) => {
 
             console.log('End ride response:', response);
 
-            if (response.status === 200) {
-                props.setFinishRidePanel(false);
-                // Redirect to captain home page
-                navigate('/captain-home');
+            if (response.status === 200) { // Show success message
+                setRideCompleted(true); // Mark the ride as completed
             }
         } catch (error) {
             console.error('Error ending ride:', error);
@@ -93,7 +132,7 @@ const FinishRide = (props) => {
             setLoading(false);
         }
     };
-    
+
     return (
         <div className="p-4">
             <h5 className='p-1 text-center w-[93%] absolute top-0' 
@@ -142,26 +181,45 @@ const FinishRide = (props) => {
                         <i className="ri-currency-line"></i>
                         <div>
                             <h3 className='text-lg font-medium'>₹{props.ride?.fare}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Payment</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{props.ride?.paymentType}</p>
                         </div>
                     </div>
                 </div>
 
-                {error && (
-                    <div className="w-full px-4 py-2 mt-4 text-center text-red-600 bg-red-100 rounded-lg">
-                        {error}
-                    </div>
-                )}
+                <div className="mt-4">
+                    <p className="text-lg font-medium">
+                        Payment Status: <span className="font-semibold">{paymentStatus || 'Fetching...'}</span>
+                    </p>
+                    {props.ride?.paymentType === 'cash' && paymentStatus !== 'completed' && (
+                        <p className="text-sm text-gray-600 mt-2">
+                            Please collect cash from the user before finishing the ride.
+                        </p>
+                    )}
+                    {paymentStatus === 'completed' && props.ride?.status !== 'ongoing' && (
+                        <p className="text-sm text-green-600 mt-2">
+                            Payment has been completed. You can finish the ride now.
+                        </p>
+                    )}
+                </div>
 
                 <div className='mt-10 w-full'>
-                    <button
-                        onClick={endRide}
-                        disabled={!distance || loading}
-                        className={`w-full mt-5 flex text-lg justify-center text-white font-semibold p-3 rounded-lg
-                            ${!distance || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
-                    >
-                        {loading ? 'Finishing Ride...' : 'Finish Ride'}
-                    </button>
+                    {!rideCompleted ? (
+                        <button
+                            onClick={endRide}
+                            disabled={paymentStatus !== 'completed' || loading}
+                            className={`w-full mt-5 flex text-lg justify-center text-white font-semibold p-3 rounded-lg
+                                ${paymentStatus !== 'completed' || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                        >
+                            {loading ? 'Finishing Ride...' : 'Finish Ride'}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => navigate('/captain-home')}
+                            className="w-full mt-5 flex text-lg justify-center text-white font-semibold p-3 rounded-lg bg-blue-500 hover:bg-blue-600"
+                        >
+                            Go to Home
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

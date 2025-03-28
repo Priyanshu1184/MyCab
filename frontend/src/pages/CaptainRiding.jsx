@@ -89,11 +89,7 @@ const CaptainRiding = () => {
         <div className='h-screen relative flex flex-col justify-end'>
             {/* Header */}
             <div className='fixed p-6 top-0 flex items-center justify-between w-screen z-10'>
-                <img 
-                    className='w-16' 
-                    src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" 
-                    alt="Logo" 
-                />
+                
                 <Link 
                     to='/captain-home' 
                     className='h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-md hover:bg-gray-100'

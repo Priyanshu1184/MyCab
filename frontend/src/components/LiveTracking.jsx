@@ -120,7 +120,7 @@ const LiveTracking = ({ pickup, destination, showDirections, mapInteractive, fol
             <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={mapCenter || { lat: 20.5937, lng: 78.9629 }}
-                zoom={15}
+                zoom={18}
                 onLoad={handleMapLoad}
                 options={{
                     styles: mapStyles,

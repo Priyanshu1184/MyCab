@@ -55,7 +55,7 @@ function getOtp(num) {
 
 
 module.exports.createRide = async ({
-    user, pickup, destination, vehicleType
+    user, pickup, destination, vehicleType, paymentType
 }) => {
     if (!user || !pickup || !destination || !vehicleType) {
         throw new Error('All fields are required');
@@ -70,7 +70,9 @@ module.exports.createRide = async ({
         pickup,
         destination,
         otp: getOtp(6),
-        fare: fare[ vehicleType ]
+        fare: fare[ vehicleType ],
+        paymentType, // Save paymentType in the database
+        status: 'pending',
     })
 
     return ride;
@@ -159,3 +161,28 @@ module.exports.endRide = async ({ rideId, captain }) => {
     return ride;
 }
 
+module.exports.completeRide = async ({ rideId, user }) => {
+    if (!rideId) {
+        throw new Error('Ride ID is required');
+    }
+
+    const ride = await rideModel.findOne({
+        _id: rideId,
+        user: user._id // Use the user field to find the ride
+    });
+
+    if (!ride) {
+        throw new Error('Ride not found or user mismatch');
+    }
+
+    if (ride.status !== 'ongoing') {
+        throw new Error('Ride is not ongoing');
+    }
+
+    // Update payment status to completed
+    ride.status = 'completed';
+    ride.paymentStatus = 'completed';
+    await ride.save();
+
+    return ride;
+};

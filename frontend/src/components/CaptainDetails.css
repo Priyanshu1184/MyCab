@@ -1,0 +1,127 @@
+.captain-header {
+    display: flex;
+    justify-content: space-between; /* Space between photo and details */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 20px;
+}
+
+.captain-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.captain-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.captain-details-right {
+    display: flex;
+    flex-direction: column; /* Stack name and earnings vertically */
+    align-items: flex-end; /* Align content to the right */
+    text-align: right; /* Ensure text is aligned to the right */
+}
+
+.captain-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.captain-earnings {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end; /* Align earnings to the right */
+    text-align: right;
+}
+
+.earnings-amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4caf50; /* Green color for earnings */
+}
+
+.earnings-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Stats Container */
+.captain-stats-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    background-color: #333; /* Black background */
+    padding: 20px;
+    border-radius: 10px;
+    color: #fff; /* White text */
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #4caf50; /* Green color for icons */
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .captain-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .captain-earnings {
+        margin-top: 10px;
+    }
+
+    .captain-stats-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .captain-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .captain-name {
+        font-size: 1.2rem;
+    }
+
+    .earnings-amount {
+        font-size: 1.5rem;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+}

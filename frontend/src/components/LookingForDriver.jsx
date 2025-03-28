@@ -49,6 +49,15 @@ const LookingForDriver = ({ ride, setVehicleFound }) => {
                                 <p className="text-sm text-gray-600">₹{ride.fare}</p>
                             </div>
                         </div>
+
+                        {/* Payment Type */}
+                        <div className="flex items-center gap-3">
+                            <i className="ri-wallet-3-fill text-gray-600"></i>
+                            <div>
+                                <h4 className="font-medium">Payment Type</h4>
+                                <p className="text-sm text-gray-600">{ride.paymentType === 'online' ? 'Online Payment' : 'Cash Payment'}</p>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

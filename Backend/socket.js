@@ -56,6 +56,7 @@ function initializeSocket(server) {
                 io.to(rideUser.socketId).emit('ride-started', { rideId });
             }
         });
+        
 
         socket.on('disconnect', () => {
             console.log(`Client disconnected: ${socket.id}`);
@@ -72,4 +73,33 @@ const sendMessageToSocketId = (socketId, messageObject) => {
     }
 };
 
-module.exports = { initializeSocket, sendMessageToSocketId };
+const updatePaymentStatus = async (req, res) => {
+    const { rideId, paymentStatus } = req.body;
+
+    try {
+        const ride = await rideModel.findById(rideId);
+
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        ride.paymentStatus = paymentStatus;
+        await ride.save();
+
+        // Emit WebSocket event to notify the driver
+        if (ride.captain && ride.captain.socketId) {
+            sendMessageToSocketId(ride.captain.socketId, {
+                event: 'payment-status-updated',
+                data: { rideId, paymentStatus }
+            });
+        }
+
+        res.status(200).json({ message: 'Payment status updated successfully', ride });
+    } catch (error) {
+        console.error('Error updating payment status:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+module.exports = { initializeSocket, sendMessageToSocketId, updatePaymentStatus };

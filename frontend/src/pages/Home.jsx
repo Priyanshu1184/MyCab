@@ -37,7 +37,7 @@ const Home = () => {
     const [ride, setRide] = useState(null);
     const [captainLocation, setCaptainLocation] = useState(null);
     const [error, setError] = useState(null);
-
+    const [paymentType, setPaymentType] = useState('cash'); // Add paymentType state
     // Refs for animations
     const vehiclePanelRef = useRef(null);
     const confirmRidePanelRef = useRef(null);
@@ -71,6 +71,7 @@ const Home = () => {
 
             const handleCaptainLocationUpdate = (location) => {
                 setCaptainLocation(location);
+                
             };
 
             const handleRideCompleted = () => {
@@ -161,9 +162,10 @@ const Home = () => {
 
     const createRide = async () => {
         try {
+            console.log('Creating ride with:', { pickup, destination, vehicleType, paymentType });
             const response = await axios.post(
                 `${import.meta.env.VITE_BASE_URL}/rides/create`,
-                { pickup, destination, vehicleType },
+                { pickup, destination, vehicleType, paymentType },
                 { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
             );
             setRide(response.data);
@@ -178,11 +180,7 @@ const Home = () => {
     return (
         <div className='h-screen flex flex-col overflow-hidden'>
             {/* Header Logo */}
-            <img 
-                className='w-16 absolute left-5 top-5 z-20' 
-                src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" 
-                alt="Logo" 
-            />
+           
 
             <div className="flex w-full h-full overflow-hidden">
                 {/* Left Panel - Search and Controls */}
@@ -251,11 +249,7 @@ const Home = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-100 text-red-600 px-4 py-2 rounded-lg z-50">
-                    {error}
-                </div>
-            )}
+            
 
             {/* Bottom Panels */}
             {/* Vehicle Selection Panel */}
@@ -284,6 +278,8 @@ const Home = () => {
                     createRide={createRide}
                     setConfirmRidePanel={setConfirmRidePanel}
                     setVehicleFound={setVehicleFound}  // Make sure this is added
+                    paymentType={paymentType} // Pass paymentType to ConfirmRide
+                    setPaymentType={setPaymentType} // Allow ConfirmRide to update paymentType
                 />
                 <button
                     onClick={() => setConfirmRidePanel(false)}

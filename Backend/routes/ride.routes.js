@@ -3,7 +3,7 @@ const router = express.Router();
 const { body, query } = require('express-validator');
 const rideController = require('../controllers/ride.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
-
+const { updatePaymentStatus } = require('../socket');
 
 router.post('/create',
     authMiddleware.authUser,
@@ -33,12 +33,30 @@ router.get('/start-ride',
     rideController.startRide
 )
 
+router.get(
+    '/details/:rideId',
+    authMiddleware.authCaptain, // Ensure the captain is authenticated
+    rideController.getRideDetails
+);
+
 router.post('/end-ride',
     authMiddleware.authCaptain,
     body('rideId').isMongoId().withMessage('Invalid ride id'),
     rideController.endRide
 )
 
+router.post(
+    '/complete',
+    authMiddleware.authUser, // Use authUser instead of authCaptain
+    body('rideId').notEmpty().withMessage('Ride ID is required'),
+    rideController.completeRide // Update the controller to handle user-side completion
+);
 
+router.post(
+    '/update-payment-status',
+    authMiddleware.authUser, // Ensure the user is authenticated
+    body('paymentStatus').notEmpty().withMessage('Payment status is required'),
+    rideController.updatePaymentStatus
+);
 
 module.exports = router;

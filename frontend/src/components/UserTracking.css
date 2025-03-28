@@ -18,7 +18,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     padding: 16px;
-    margin-top: 32px; /* Added margin to bring the panel down */
+    margin-top: 0; /* Removed margin to prevent layout issues */
 }
 
 .driver-details, .trip-details {
@@ -33,7 +33,7 @@ body {
     height: 64px;
     width: 64px;
     border-radius: 50%;
-    object-cover: cover;
+    object-fit: cover;
 }
 
 .driver-details h2, .driver-details h4, .driver-details p, .driver-details h1 {
@@ -43,9 +43,9 @@ body {
 .trip-details div {
     display: flex;
     align-items: center;
-    gap: 4px; /* Further reduced gap */
-    margin-bottom: 4px; /* Further reduced margin */
-    padding: 4px 0; /* Added padding to reduce gap */
+    gap: 4px;
+    margin-bottom: 4px;
+    padding: 4px 0;
 }
 
 .trip-details i {
@@ -86,4 +86,65 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Ensure the html and body elements take up the full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Ensure the overlay covers the entire screen */
+.payment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    z-index: 1000; /* Ensure it appears above all other content */
+}
+
+/* Modal styling */
+.payment-modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px; /* Add spacing between elements */
+}
+
+.payment-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Ensure content takes full width */
+}
+
+.payment-form {
+    width: 100%; /* Ensure the form takes full width */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Add spacing between form elements */
+}
+
+.card-element-container {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Ensure the Stripe element takes full width */
+    box-sizing: border-box;
+}
+
+.payment-form button {
+    width: 100%; /* Make the button take full width */
 }

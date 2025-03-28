@@ -38,9 +38,23 @@ const rideSchema = new mongoose.Schema({
         type: Number,
     }, // in meters
 
+    paymentType: { 
+        type: String, 
+        enum: ['cash', 'online'], 
+        required: true 
+    },
+
     paymentID: {
         type: String,
     },
+
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'completed', 'failed'],
+        default: 'pending',
+    },
+
+
     orderId: {
         type: String,
     },

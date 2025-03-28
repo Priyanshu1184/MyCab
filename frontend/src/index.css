@@ -66,7 +66,7 @@ body {
     margin-right: 10px;
 }
 
-
+/* Captain details section */
 .captain-details {
     padding: 16px;
 }
@@ -89,7 +89,7 @@ body {
     height: 40px;
     width: 40px;
     border-radius: 50%;
-    object-cover: cover;
+    object-fit: cover;
 }
 
 .captain-name {
@@ -112,6 +112,7 @@ body {
     color: #6b7280;
 }
 
+/* Captain stats section */
 .captain-stats {
     display: flex;
     justify-content: space-around;
@@ -140,6 +141,7 @@ body {
     color: #6b7280;
 }
 
+/* Responsive styles */
 @media (max-width: 600px) {
     .captain-header {
         flex-direction: column;

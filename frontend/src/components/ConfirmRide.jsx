@@ -9,7 +9,9 @@ const ConfirmRide = ({
     vehicleType, 
     createRide, 
     setConfirmRidePanel,
-    setVehicleFound 
+    setVehicleFound,
+    paymentType, // Use the paymentType prop passed from the parent
+    setPaymentType // Use the setPaymentType prop passed from the parent
 }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ const ConfirmRide = ({
     const handleConfirmRide = async () => {
         try {
             setLoading(true);
-            await createRide();
+            await createRide(); // Pass the selected payment type
             setVehicleFound(true);
             setConfirmRidePanel(false);
         } catch (error) {
@@ -60,8 +62,24 @@ const ConfirmRide = ({
                         <i className="ri-currency-line text-xl"></i>
                         <div>
                             <h3 className='text-lg font-medium'>₹{fare[vehicleType]}</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Payment</p>
+                            <p className='text-sm -mt-1 text-gray-600'>Select Payment Type</p>
                         </div>
+                    </div>
+
+                    {/* Payment Type Selection */}
+                    <div>
+                        <h4 className="font-medium">Payment Type</h4>
+                        <select
+                            value={paymentType} // Use the prop
+                            onChange={(e) => {
+                                console.log('Selected Payment Type:', e.target.value); // Debugging
+                                setPaymentType(e.target.value); // Update the state in the parent component
+                            }}
+                            className="p-2 border rounded-lg"
+                        >
+                            <option value="cash">Cash</option>
+                            <option value="online">Online</option>
+                        </select>
                     </div>
                 </div>
 
@@ -93,7 +111,9 @@ ConfirmRide.propTypes = {
     vehicleType: PropTypes.string.isRequired,
     createRide: PropTypes.func.isRequired,
     setConfirmRidePanel: PropTypes.func.isRequired,
-    setVehicleFound: PropTypes.func.isRequired
+    setVehicleFound: PropTypes.func.isRequired,
+    paymentType: PropTypes.string.isRequired, // Add prop validation
+    setPaymentType: PropTypes.func.isRequired // Add prop validation
 };
 
 export default ConfirmRide;

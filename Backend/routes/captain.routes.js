@@ -25,6 +25,9 @@ router.post('/login', [
     captainController.loginCaptain
 )
 
+// In driver.routes.js
+router.get('/current-location', authMiddleware.authCaptain, captainController.getDriverCurrentLocation);
+
 
 router.get('/profile', authMiddleware.authCaptain, captainController.getCaptainProfile)
 

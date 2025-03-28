@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScriptNext, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import axios from 'axios';
 
 const containerStyle = {
     width: '100vw',
@@ -7,61 +8,70 @@ const containerStyle = {
 };
 
 const CaptainTracking = ({ ride, setTrackingPanel, setConfirmRidePopupPanel }) => {
-    const [currentPosition, setCurrentPosition] = useState(null);
+    const [currentPosition, setCurrentPosition] = useState(null); // Driver's current location
     const [directions, setDirections] = useState(null);
 
-    useEffect(() => {
-        if (navigator.geolocation) {
-            const watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    const newPos = { lat: latitude, lng: longitude };
-                    setCurrentPosition(newPos);
-                },
-                (error) => console.error("Error getting location:", error),
-                { enableHighAccuracy: true }
-            );
-
-            return () => navigator.geolocation.clearWatch(watchId);
+    // Function to fetch the driver's current location from the backend
+    const fetchDriverLocation = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/captains/current-location`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            });
+    
+            const { latitude, longitude } = response.data;
+            setCurrentPosition({ lat: latitude, lng: longitude });
+        } catch (error) {
+            console.error('Error fetching driver location:', error);
         }
+    };
+    // Fetch the driver's location periodically
+    useEffect(() => {
+        fetchDriverLocation(); // Fetch initially
+
+        // Poll every 5 seconds
+        const interval = setInterval(() => {
+            fetchDriverLocation();
+        }, 5000);
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
     }, []);
 
+    // Fetch directions when the current position or ride details change
     useEffect(() => {
-        if (currentPosition && ride?.pickup) {
-            const directionsService = new google.maps.DirectionsService();
-            const destination = ride?.started ? ride.destination : ride.pickup;
-            console.log("Destination:", destination);
-            console.log("Current Location:", currentPosition);
+        const fetchDirections = () => {
+            if (currentPosition && ride?.pickup) {
+                const directionsService = new google.maps.DirectionsService();
+                const destination = ride?.started ? ride.destination : ride.pickup;
 
-            directionsService.route(
-                {
-                    origin: currentPosition,
-                    destination: destination,
-                    travelMode: google.maps.TravelMode.DRIVING,
-                },
-                (result, status) => {
-                    console.log("Directions Result:", result);
-                    if (status === google.maps.DirectionsStatus.OK) {
-                        setDirections(result);
-                    } else {
-                        console.error("Error fetching directions:", status);
+                directionsService.route(
+                    {
+                        origin: currentPosition,
+                        destination: destination,
+                        travelMode: google.maps.TravelMode.DRIVING,
+                    },
+                    (result, status) => {
+                        if (status === google.maps.DirectionsStatus.OK) {
+                            setDirections(result);
+                        } else {
+                            console.error('Error fetching directions:', status);
+                        }
                     }
-                }
-            );
-        }
+                );
+            }
+        };
+
+        fetchDirections();
     }, [currentPosition, ride]);
 
     return (
-        <LoadScriptNext googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={currentPosition || { lat: 0, lng: 0 }}
-                zoom={15}
-                options={{ disableDefaultUI: false }}
-            >
-                {currentPosition && <Marker position={currentPosition} />}
-                {directions && <DirectionsRenderer directions={directions} />}
-            </GoogleMap>
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={currentPosition || { lat: 0, lng: 0 }} // Default to (0, 0) if location is not yet available
+            zoom={15}
+            options={{ disableDefaultUI: false }}
+        >
+            {currentPosition && <Marker position={currentPosition} />}
+            {directions && <DirectionsRenderer directions={directions} />}
             <button
                 onClick={() => {
                     setTrackingPanel(false);
@@ -71,7 +81,7 @@ const CaptainTracking = ({ ride, setTrackingPanel, setConfirmRidePopupPanel }) =
             >
                 Confirm Arrival
             </button>
-        </LoadScriptNext>
+        </GoogleMap>
     );
 };
 

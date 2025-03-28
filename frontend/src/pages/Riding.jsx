@@ -60,7 +60,7 @@ const Riding = () => {
                                 <i className="ri-currency-line"></i>
                                 <div>
                                     <h3 className='text-lg font-medium'>₹{ride?.fare || "0"}</h3>
-                                    <p className='text-sm -mt-1 text-gray-600'>Cash Payment</p>
+                                    <p className='text-sm -mt-1 text-gray-600'>{ride?.paymentType}</p>
                                 </div>
                             </div>
                         </div>

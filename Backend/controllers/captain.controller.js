@@ -77,6 +77,26 @@ module.exports.getCaptainProfile = async (req, res, next) => {
     res.status(200).json({ captain: req.captain });
 }
 
+module.exports.getDriverCurrentLocation = async (req, res) => {
+    try {
+        const driverId = req.captain._id; // Use req.captain instead of req.user
+        console.log('Driver ID:', driverId); // Debug log
+
+        const driver = await captainModel.findById(driverId);
+
+        if (!driver || !driver.location) {
+            return res.status(404).json({ message: 'Driver location not found' });
+        }
+
+        const { ltd: latitude, lng: longitude } = driver.location;
+        return res.status(200).json({ latitude, longitude });
+    } catch (error) {
+        console.error('Error fetching driver location:', error); // Debug log
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
 module.exports.logoutCaptain = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
