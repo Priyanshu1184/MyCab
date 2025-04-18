@@ -13,6 +13,7 @@ const WaitingForDriver = (props) => {
     const navigate = useNavigate();
     const [captainLocation, setCaptainLocation] = useState(null);
     const [directions, setDirections] = useState(null);
+    const [map, setMap] = useState(null);
 
     const handleCancelRide = () => {
         window.location.href = '/home';
@@ -133,18 +134,115 @@ const WaitingForDriver = (props) => {
             </div>
 
             {/* Map Section */}
-            <div className="map-container w-2/3">
+            <div className="map-container w-2/3 relative">
                 <LoadScriptNext googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                     <GoogleMap
                         mapContainerStyle={containerStyle}
-                        center={captainLocation || { lat: 20.2961, lng: 85.8245 }} // Default to Bhubaneswar
+                        center={captainLocation || { lat: 20.2961, lng: 85.8245 }}
                         zoom={15}
-                        options={{ disableDefaultUI: false }}
+                        options={{ 
+                            disableDefaultUI: false,
+                            zoomControl: true,
+                            mapTypeControl: true,
+                            streetViewControl: true,
+                            fullscreenControl: true,
+                            styles: [
+                                { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+                                { elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+                                { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+                                { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+                                { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+                                { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+                                { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+                                { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9eaf9" }] }
+                            ]
+                        }}
+                        onLoad={(mapInstance) => setMap(mapInstance)}
                     >
-                        {captainLocation && <Marker position={captainLocation} />}
-                        {directions && <DirectionsRenderer directions={directions} />}
+                        {directions && (
+                            <DirectionsRenderer 
+                                directions={directions} 
+                                options={{
+                                    suppressMarkers: true, // Hide default markers
+                                    polylineOptions: {
+                                        strokeColor: '#4285F4',
+                                        strokeWeight: 5,
+                                        strokeOpacity: 0.8,
+                                    }
+                                }}
+                            />
+                        )}
+                        
+                        {/* Captain location marker with arrow */}
+                        {captainLocation && (
+                            <Marker
+                                position={captainLocation}
+                                icon={{
+                                    path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                                    scale: 6,
+                                    fillColor: "#4285F4",
+                                    fillOpacity: 1,
+                                    strokeColor: "#FFFFFF",
+                                    strokeWeight: 2,
+                                    rotation: 0 // Upward direction
+                                }}
+                                label={{
+                                    text: "Driver",
+                                    color: "#FFFFFF",
+                                    fontWeight: "bold",
+                                    fontSize: "12px",
+                                    className: "marker-label"
+                                }}
+                            />
+                        )}
+                        
+                        {/* Pickup location marker */}
+                        {directions && directions.routes && directions.routes[0] && (
+                            <Marker
+                                position={directions.routes[0].legs[0].end_location}
+                                icon={{
+                                    url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                                    scaledSize: new window.google.maps.Size(40, 40)
+                                }}
+                                label={{
+                                    text: "Pickup",
+                                    color: "#FFFFFF",
+                                    fontWeight: "bold",
+                                    fontSize: "12px"
+                                }}
+                            />
+                        )}
                     </GoogleMap>
                 </LoadScriptNext>
+                
+                {/* Custom zoom controls */}
+                <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => map && map.setZoom(map.getZoom() + 1)}
+                    >
+                        <i className="ri-zoom-in-line text-xl"></i>
+                    </button>
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => map && map.setZoom(map.getZoom() - 1)}
+                    >
+                        <i className="ri-zoom-out-line text-xl"></i>
+                    </button>
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => {
+                            if (map && captainLocation && directions && directions.routes && directions.routes[0]) {
+                                const bounds = new window.google.maps.LatLngBounds();
+                                bounds.extend(captainLocation);
+                                bounds.extend(directions.routes[0].legs[0].end_location);
+                                map.fitBounds(bounds);
+                            }
+                        }}
+                    >
+                        <i className="ri-focus-3-line text-xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
     );

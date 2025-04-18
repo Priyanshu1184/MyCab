@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { GoogleMap, LoadScriptNext, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, LoadScriptNext, DirectionsRenderer, Marker } from '@react-google-maps/api';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -313,7 +313,7 @@ const UserTracking = ({ ride, captainLocation, setRideStarted }) => {
                             ) : (
                                 <button
                                     className='bg-green-500 text-white px-4 py-2 rounded-lg'
-                                    onClick={() => navigate('/home')}
+                                    onClick={() => (window.location.href = '/home')}
                                 >
                                     Go to Home
                                 </button>
@@ -329,13 +329,103 @@ const UserTracking = ({ ride, captainLocation, setRideStarted }) => {
                     <GoogleMap
                         mapContainerStyle={containerStyle}
                         center={mapCenter}
-                        zoom={18}
-                        options={{ disableDefaultUI: false }}
-                        onLoad={(mapInstance) => setMap(mapInstance)} // Capture the map instance
+                        zoom={16}
+                        options={{ 
+                            disableDefaultUI: false,
+                            zoomControl: true,
+                            mapTypeControl: true,
+                            streetViewControl: true,
+                            fullscreenControl: true,
+                            styles: [
+                                { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+                                { elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+                                { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+                                { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+                                { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+                                { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+                                { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+                                { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9eaf9" }] }
+                            ]
+                        }}
+                        onLoad={(mapInstance) => setMap(mapInstance)}
                     >
-                        {directions && <DirectionsRenderer directions={directions} />}
+                        {directions && (
+                            <DirectionsRenderer 
+                                directions={directions}
+                                options={{
+                                    suppressMarkers: true, // Hide default markers
+                                    polylineOptions: {
+                                        strokeColor: '#4285F4',
+                                        strokeWeight: 5,
+                                        strokeOpacity: 0.8,
+                                    }
+                                }}
+                            />
+                        )}
+                        
+                        {/* Current location marker with arrow pointing upward */}
+                        {mapCenter && (
+                            <Marker
+                                position={mapCenter}
+                                icon={{
+                                    path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                                    scale: 6,
+                                    fillColor: "#4285F4",
+                                    fillOpacity: 1,
+                                    strokeColor: "#FFFFFF",
+                                    strokeWeight: 2,
+                                    rotation: 0 // Upward direction
+                                }}
+                            />
+                        )}
+                        
+                        {/* Destination marker */}
+                        {directions && directions.routes && directions.routes[0] && (
+                            <Marker
+                                position={directions.routes[0].legs[0].end_location}
+                                icon={{
+                                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                                    scaledSize: new window.google.maps.Size(40, 40)
+                                }}
+                                label={{
+                                    text: "Destination",
+                                    color: "#FFFFFF",
+                                    fontWeight: "bold",
+                                    fontSize: "12px"
+                                }}
+                            />
+                        )}
                     </GoogleMap>
                 </LoadScriptNext>
+                
+                {/* Custom zoom controls */}
+                <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => map && map.setZoom(map.getZoom() + 1)}
+                    >
+                        <i className="ri-zoom-in-line text-xl"></i>
+                    </button>
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => map && map.setZoom(map.getZoom() - 1)}
+                    >
+                        <i className="ri-zoom-out-line text-xl"></i>
+                    </button>
+                    <button 
+                        className="bg-white p-2 rounded-full shadow-lg text-gray-700"
+                        onClick={() => {
+                            if (map && directions && directions.routes && directions.routes[0]) {
+                                const bounds = new window.google.maps.LatLngBounds();
+                                bounds.extend(mapCenter);
+                                bounds.extend(directions.routes[0].legs[0].end_location);
+                                map.fitBounds(bounds);
+                            }
+                        }}
+                    >
+                        <i className="ri-focus-3-line text-xl"></i>
+                    </button>
+                </div>
             </div>
 
             {/* Payment Modal */}
